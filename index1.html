@@ -1,0 +1,3487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cryptocurrency Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0b1020;
+    color:white;
+    transition:.3s;
+}
+
+body.light{
+    background:#f1f3ff;
+    color:#151a35;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:fixed;
+    width:245px;
+    height:100vh;
+    background:linear-gradient(180deg,#26145b,#11172f);
+    padding:25px 18px;
+    overflow-y:auto;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:bold;
+    color:#a78bfa;
+    margin-bottom:35px;
+}
+
+.logo span{
+    color:#22d3ee;
+}
+
+.menu a{
+    display:block;
+    padding:14px;
+    margin:8px 0;
+    text-decoration:none;
+    color:#c4c9e9;
+    border-radius:10px;
+}
+
+.menu a:hover,
+.menu a.active{
+    background:linear-gradient(90deg,#9333ea,#2563eb);
+    color:white;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:245px;
+    padding:28px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.topbar h1{
+    font-size:27px;
+}
+
+.search{
+    padding:12px;
+    border:1px solid #41476e;
+    background:#202849;
+    color:white;
+    border-radius:10px;
+    outline:none;
+}
+
+button{
+    border:none;
+    background:linear-gradient(90deg,#9333ea,#2563eb);
+    color:white;
+    padding:11px 16px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:bold;
+    margin:3px;
+}
+
+button:hover{
+    opacity:.8;
+}
+
+/* CARDS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:22px;
+}
+
+.card{
+    background:linear-gradient(135deg,#282e5a,#171d39);
+    padding:22px;
+    border-radius:16px;
+    border:1px solid #39416d;
+}
+
+.card p{
+    color:#aab2d5;
+    font-size:14px;
+}
+
+.card h2{
+    margin:15px 0;
+    font-size:24px;
+}
+
+.purple{border-left:5px solid #a78bfa;}
+.blue{border-left:5px solid #38bdf8;}
+.green{border-left:5px solid #34d399;}
+.orange{border-left:5px solid #fb923c;}
+
+.up{color:#34d399;}
+.down{color:#fb7185;}
+
+/* SECTIONS */
+
+.section{
+    background:#171d39;
+    border:1px solid #39416d;
+    padding:22px;
+    border-radius:16px;
+    margin-bottom:22px;
+}
+
+.section h3{
+    margin-bottom:18px;
+}
+
+.light .card,
+.light .section{
+    background:white;
+    border:1px solid #ddd;
+}
+
+.middle{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:18px;
+}
+
+.chartbox{
+    height:270px;
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+th,td{
+    padding:15px 10px;
+    text-align:left;
+    border-bottom:1px solid #39416d;
+}
+
+th{
+    color:#aab2d5;
+    font-size:13px;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+.coin{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.coin img{
+    width:32px;
+    height:32px;
+}
+
+.coin small{
+    color:#aab2d5;
+}
+
+.star{
+    color:#fbbf24;
+    cursor:pointer;
+    font-size:21px;
+}
+
+/* FORMS */
+
+.input{
+    width:100%;
+    padding:12px;
+    border:1px solid #454d78;
+    background:#222949;
+    color:white;
+    border-radius:9px;
+    margin:8px 0 15px;
+}
+
+.light .input,
+.light .search{
+    background:white;
+    color:#111;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+/* NEWS */
+
+.news-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.news-card{
+    background:#252c53;
+    padding:18px;
+    border-radius:13px;
+    line-height:1.6;
+}
+
+.light .news-card{
+    background:#eef0ff;
+}
+
+.news-card h4{
+    margin-bottom:10px;
+}
+
+.progress{
+    height:9px;
+    background:#30385d;
+    border-radius:20px;
+    margin:10px 0 18px;
+}
+
+.progress div{
+    height:100%;
+    background:linear-gradient(90deg,#9333ea,#22d3ee);
+    border-radius:20px;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    margin:15px 0;
+    gap:10px;
+}
+
+.badge{
+    background:#30385d;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+/* FOOTER */
+
+.footer{
+    margin-top:40px;
+    padding:40px 25px 20px;
+    background:linear-gradient(
+        135deg,
+        #26145b,
+        #11172f,
+        #1e3a8a,
+        #312e81
+    );
+    border-radius:20px;
+    border-top:4px solid #a78bfa;
+    color:white;
+}
+
+.footer-container{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1.5fr;
+    gap:30px;
+    padding-bottom:30px;
+}
+
+.footer-about h2{
+    font-size:26px;
+    color:#a78bfa;
+    margin-bottom:15px;
+}
+
+.footer-about span{
+    color:#22d3ee;
+}
+
+.footer-about p{
+    color:#c4c9e9;
+    line-height:1.8;
+}
+
+.footer-column h3{
+    color:#22d3ee;
+    margin-bottom:18px;
+}
+
+.footer-column a{
+    display:block;
+    text-decoration:none;
+    color:#dbeafe;
+    margin:12px 0;
+    transition:.3s;
+}
+
+.footer-column a:hover{
+    color:#fbbf24;
+    transform:translateX(6px);
+}
+
+.footer-column p{
+    color:#c4c9e9;
+    margin:12px 0;
+    font-size:14px;
+}
+
+.footer-social{
+    text-align:center;
+    padding:25px 0;
+    border-top:1px solid #59618d;
+    border-bottom:1px solid #59618d;
+}
+
+.footer-social h3{
+    margin-bottom:15px;
+    color:#22d3ee;
+}
+
+.footer-social a{
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    width:45px;
+    height:45px;
+    margin:5px;
+    background:linear-gradient(135deg,#9333ea,#2563eb);
+    border-radius:50%;
+    font-size:22px;
+    text-decoration:none;
+}
+
+.footer-social a:hover{
+    transform:translateY(-5px);
+}
+
+.footer-bottom{
+    text-align:center;
+    padding-top:25px;
+    line-height:2;
+}
+
+.footer-bottom p{
+    color:#c4c9e9;
+    font-size:13px;
+}
+
+.disclaimer{
+    color:#fbbf24!important;
+}
+
+.back-top{
+    display:block;
+    margin:20px auto 0;
+    border-radius:30px;
+}
+
+/* LIGHT FOOTER */
+
+.light .footer{
+    background:linear-gradient(135deg,#e0d7ff,#dbeafe,#ede9fe);
+    color:#151a35;
+}
+
+.light .footer-about p,
+.light .footer-column p,
+.light .footer-bottom p{
+    color:#33365c;
+}
+
+.light .footer-column a{
+    color:#25264d;
+}
+
+/* MESSAGE */
+
+#message{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#16a34a;
+    color:white;
+    padding:15px 22px;
+    border-radius:10px;
+    display:none;
+    z-index:10;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .middle{
+        grid-template-columns:1fr;
+    }
+
+    .news-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .footer-container{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:700px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    .menu{
+        display:flex;
+        overflow-x:auto;
+    }
+
+    .menu a{
+        white-space:nowrap;
+    }
+
+    .main{
+        margin:0;
+        padding:15px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:450px){
+
+    .stats,
+    .news-grid,
+    .footer-container{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<div class="logo">🚀 Crypto<span>Dashboard</span></div>
+
+<div class="menu">
+
+<a href="#dashboard">🏠 Dashboard</a>
+<a href="#markets">📊 Markets</a>
+<a href="#trading">💹 Buy / Sell</a>
+<a href="#wallet">💰 Wallet</a>
+<a href="#watchlist">⭐ Watchlist</a>
+<a href="#analytics">📈 Analytics</a>
+<a href="#alerts">🔔 Price Alerts</a>
+<a href="#history">📜 History</a>
+<a href="#converter">🌎 Converter</a>
+<a href="#news">📰 Crypto News</a>
+
+</div>
+</div>
+
+<!-- MAIN CONTENT -->
+
+<div class="main" id="dashboard">
+
+<div class="topbar">
+
+<div>
+<h1>Cryptocurrency Dashboard 👋</h1>
+<p style="color:#aab2d5;margin-top:7px">
+Advanced Cryptocurrency Management System
+</p>
+</div>
+
+<div>
+
+<input type="text" id="search" class="search"
+placeholder="🔍 Search coins...">
+
+<button onclick="toggleTheme()">🌙 Theme</button>
+
+<button onclick="loadLiveData()">🔄 Refresh</button>
+
+</div>
+</div>
+
+<!-- STATISTICS -->
+
+<div class="stats">
+
+<div class="card purple">
+<p>💰 Wallet Balance</p>
+<h2 id="balance">₹1,00,000</h2>
+<span class="up">Virtual Wallet</span>
+</div>
+
+<div class="card blue">
+<p>📈 Total Profit / Loss</p>
+<h2 id="profit">₹0</h2>
+<span>Demo Trading</span>
+</div>
+
+<div class="card green">
+<p>🪙 Cryptocurrencies</p>
+<h2 id="coinCount">20</h2>
+<span>Available Coins</span>
+</div>
+
+<div class="card orange">
+<p>⭐ Watchlist</p>
+<h2 id="watchCount">0</h2>
+<span>Favourite Coins</span>
+</div>
+
+</div>
+
+<!-- CHART -->
+
+<div class="middle">
+
+<div class="section" id="analytics">
+
+<h3>📈 Market Analytics</h3>
+
+<div class="chartbox">
+<canvas id="priceChart"></canvas>
+</div>
+
+</div>
+
+<div class="section" id="wallet">
+
+<h3>💎 My Wallet</h3>
+
+<div class="item">
+<span>Available Balance</span>
+<b id="walletBalance">₹1,00,000</b>
+</div>
+
+<div class="item">
+<span>Total Investments</span>
+<b id="investment">₹0</b>
+</div>
+
+<div class="item">
+<span>Transactions</span>
+<b id="transactionCount">0</b>
+</div>
+
+<br>
+
+<button onclick="addMoney()">➕ Add Money</button>
+
+</div>
+</div>
+
+<!-- GAINERS AND LOSERS -->
+
+<div class="middle">
+
+<div class="section">
+
+<h3>🏆 Top Gainers</h3>
+
+<div id="gainers"></div>
+
+</div>
+
+<div class="section">
+
+<h3>📉 Top Losers</h3>
+
+<div id="losers"></div>
+
+</div>
+
+</div>
+
+<!-- MARKET -->
+
+<div class="section table-wrap" id="markets">
+
+<h3>🔥 Cryptocurrency Market</h3>
+
+<br>
+
+<table>
+
+<thead>
+<tr>
+<th>⭐</th>
+<th>Coin</th>
+<th>Price</th>
+<th>24H Change</th>
+<th>Market Cap</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="coinList"></tbody>
+
+</table>
+
+<p id="status" style="padding:15px;color:#aab2d5">
+Loading...
+</p>
+
+</div>
+
+<!-- TRADING -->
+
+<div class="section" id="trading">
+
+<h3>💹 Buy & Sell Cryptocurrency</h3>
+
+<div class="form-grid">
+
+<div>
+
+<label>Select Cryptocurrency</label>
+
+<select class="input" id="tradeCoin"></select>
+
+<label>Quantity</label>
+
+<input type="number" class="input"
+id="quantity" placeholder="Enter quantity" min="0" step="any">
+
+<button onclick="buyCoin()">🟢 Buy Coin</button>
+
+<button onclick="sellCoin()">🔴 Sell Coin</button>
+
+</div>
+
+<div>
+
+<h3>Trading Information</h3>
+
+<p id="tradePrice">Select a coin to see its price.</p>
+
+<br>
+
+<p style="color:#aab2d5;line-height:1.8">
+This is a virtual trading system.
+It does not execute real cryptocurrency transactions.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- WATCHLIST -->
+
+<div class="section" id="watchlist">
+
+<h3>⭐ My Favourite Coins</h3>
+
+<br>
+
+<div id="favourites" class="news-grid">
+<p>No favourites added.</p>
+</div>
+
+</div>
+
+<!-- ALERTS -->
+
+<div class="section" id="alerts">
+
+<h3>🔔 Price Alert System</h3>
+
+<div class="form-grid">
+
+<div>
+
+<label>Select Coin</label>
+
+<select class="input" id="alertCoin"></select>
+
+<label>Target Price (INR)</label>
+
+<input type="number" class="input"
+id="targetPrice" placeholder="Enter target price">
+
+<button onclick="addAlert()">Create Alert</button>
+
+</div>
+
+<div>
+
+<h3>My Price Alerts</h3>
+
+<div id="alertList">No alerts created.</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- HISTORY -->
+
+<div class="section table-wrap" id="history">
+
+<h3>📜 Transaction History</h3>
+
+<br>
+
+<table>
+
+<thead>
+<tr>
+<th>Coin</th>
+<th>Type</th>
+<th>Quantity</th>
+<th>Price</th>
+<th>Total</th>
+<th>Date</th>
+</tr>
+</thead>
+
+<tbody id="historyList"></tbody>
+
+</table>
+
+<br>
+
+<button onclick="downloadCSV()">📥 Download Report</button>
+
+</div>
+
+<!-- CONVERTER -->
+
+<div class="section" id="converter">
+
+<h3>🌎 Currency Converter</h3>
+
+<div class="form-grid">
+
+<div>
+
+<label>Enter INR Amount</label>
+
+<input type="number" id="inrAmount"
+class="input" placeholder="Enter amount">
+
+<button onclick="convertCurrency()">Convert</button>
+
+</div>
+
+<div>
+
+<h3>Converted Amount</h3>
+
+<h2 id="converted">$0.00</h2>
+
+<p style="color:#aab2d5">
+Uses a demo USD/INR exchange rate.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- COMPARISON -->
+
+<div class="section">
+
+<h3>⚖️ Compare Cryptocurrencies</h3>
+
+<div class="form-grid">
+
+<div>
+<select id="compare1" class="input"></select>
+</div>
+
+<div>
+<select id="compare2" class="input"></select>
+</div>
+
+</div>
+
+<button onclick="compareCoins()">Compare Now</button>
+
+<div id="comparison" style="margin-top:20px"></div>
+
+</div>
+
+<!-- NEWS -->
+
+<div class="section" id="news">
+
+<h3>📰 Crypto News</h3>
+
+<div class="news-grid">
+
+<div class="news-card">
+<h4>₿ Bitcoin Market</h4>
+<p>Follow Bitcoin market movements and price trends.</p>
+<span class="badge">Market Update</span>
+</div>
+
+<div class="news-card">
+<h4>Ξ Ethereum Ecosystem</h4>
+<p>Explore developments in blockchain applications.</p>
+<span class="badge">Technology</span>
+</div>
+
+<div class="news-card">
+<h4>🚀 Crypto Trends</h4>
+<p>Discover popular cryptocurrency market trends.</p>
+<span class="badge">Trending</span>
+</div>
+
+</div>
+
+<br>
+
+<p style="color:#aab2d5">
+These are sample news cards, not live news headlines.
+</p>
+
+</div>
+
+<!-- NEW FOOTER -->
+
+<footer class="footer">
+
+<div class="footer-container">
+
+<div class="footer-about">
+
+<h2>🚀 Cryptocurrency <span>Dashboard</span></h2>
+
+<p>
+Your Smart Cryptocurrency Management System.
+Track crypto prices, manage your virtual wallet
+and explore cryptocurrency markets.
+</p>
+
+</div>
+
+<div class="footer-column">
+
+<h3>Quick Links</h3>
+
+<a href="#dashboard">🏠 Dashboard</a>
+<a href="#markets">📊 Markets</a>
+<a href="#trading">💹 Trading</a>
+<a href="#wallet">💰 Wallet</a>
+
+</div>
+
+<div class="footer-column">
+
+<h3>Explore</h3>
+
+<a href="#watchlist">⭐ Watchlist</a>
+<a href="#analytics">📈 Analytics</a>
+<a href="#alerts">🔔 Price Alerts</a>
+<a href="#news">📰 Crypto News</a>
+
+</div>
+
+<div class="footer-column">
+
+<h3>Contact Us</h3>
+
+<p>📧 support@example.com</p>
+<p>🌐 Cryptocurrency Dashboard</p>
+<p>📍 India</p>
+
+</div>
+
+</div>
+
+<div class="footer-social">
+
+<h3>Follow Us</h3>
+
+<a href="#" title="Facebook">📘</a>
+<a href="#" title="Instagram">📸</a>
+<a href="#" title="Twitter">🐦</a>
+<a href="#" title="Telegram">✈️</a>
+<a href="#" title="YouTube">▶️</a>
+
+</div>
+
+<div class="footer-bottom">
+
+<p>© 2026 Cryptocurrency Dashboard. All Rights Reserved.</p>
+
+<p>Developed with ❤️ using HTML, CSS & JavaScript</p>
+
+<p class="disclaimer">
+Educational Demo | Not Financial Advice
+</p>
+
+</div>
+
+<button class="back-top" onclick="scrollToTop()">
+⬆ Back to Top
+</button>
+
+</footer>
+
+</div>
+
+<div id="message"></div>
+
+<script>
+
+/* SAMPLE DATA */
+
+const sampleCoins=[
+
+{id:"bitcoin",name:"Bitcoin",symbol:"BTC",price:9200000,change:2.5,cap:1800000000000},
+{id:"ethereum",name:"Ethereum",symbol:"ETH",price:310000,change:3.2,cap:370000000000},
+{id:"tether",name:"Tether",symbol:"USDT",price:88,change:0.1,cap:150000000000},
+{id:"binancecoin",name:"BNB",symbol:"BNB",price:82000,change:1.8,cap:120000000000},
+{id:"solana",name:"Solana",symbol:"SOL",price:15000,change:5.6,cap:70000000000},
+{id:"ripple",name:"XRP",symbol:"XRP",price:210,change:-1.5,cap:110000000000},
+{id:"dogecoin",name:"Dogecoin",symbol:"DOGE",price:18,change:4.5,cap:25000000000},
+{id:"cardano",name:"Cardano",symbol:"ADA",price:55,change:-2.2,cap:19000000000},
+{id:"tron",name:"TRON",symbol:"TRX",price:30,change:1.3,cap:28000000000},
+{id:"avalanche-2",name:"Avalanche",symbol:"AVAX",price:2300,change:3.8,cap:9000000000},
+{id:"polkadot",name:"Polkadot",symbol:"DOT",price:350,change:-0.8,cap:6000000000},
+{id:"chainlink",name:"Chainlink",symbol:"LINK",price:1400,change:2.7,cap:10000000000},
+{id:"shiba-inu",name:"Shiba Inu",symbol:"SHIB",price:0.002,change:6.1,cap:8000000000},
+{id:"litecoin",name:"Litecoin",symbol:"LTC",price:8000,change:1.1,cap:7000000000},
+{id:"uniswap",name:"Uniswap",symbol:"UNI",price:700,change:-1.3,cap:4000000000},
+{id:"stellar",name:"Stellar",symbol:"XLM",price:30,change:2.3,cap:5000000000},
+{id:"monero",name:"Monero",symbol:"XMR",price:25000,change:1.7,cap:4000000000},
+{id:"cosmos",name:"Cosmos",symbol:"ATOM",price:400,change:-0.5,cap:2000000000},
+{id:"near",name:"NEAR Protocol",symbol:"NEAR",price:450,change:3.4,cap:5000000000},
+{id:"aptos",name:"Aptos",symbol:"APT",price:600,change:-1.2,cap:3000000000}
+
+];
+
+let coins=[...sampleCoins];
+
+let wallet=Number(localStorage.getItem("cryptoWallet")||100000);
+
+let holdings=JSON.parse(localStorage.getItem("cryptoHoldings")||"{}");
+
+let history=JSON.parse(localStorage.getItem("cryptoHistory")||"[]");
+
+let favourites=JSON.parse(localStorage.getItem("cryptoFav")||"[]");
+
+let alerts=JSON.parse(localStorage.getItem("cryptoAlerts")||"[]");
+
+let alerted=new Set();
+
+/* MONEY FORMAT */
+
+function money(n){
+
+return "₹"+Number(n).toLocaleString("en-IN",{
+maximumFractionDigits:2
+});
+
+}
+
+/* SAVE */
+
+function saveData(){
+
+localStorage.setItem("cryptoWallet",wallet);
+
+localStorage.setItem("cryptoHoldings",JSON.stringify(holdings));
+
+localStorage.setItem("cryptoHistory",JSON.stringify(history));
+
+localStorage.setItem("cryptoFav",JSON.stringify(favourites));
+
+localStorage.setItem("cryptoAlerts",JSON.stringify(alerts));
+
+}
+
+/* MESSAGE */
+
+function notify(text){
+
+let m=document.getElementById("message");
+
+m.innerText=text;
+
+m.style.display="block";
+
+setTimeout(()=>{
+m.style.display="none";
+},3000);
+
+}
+
+/* DASHBOARD */
+
+function updateDashboard(){
+
+let invested=0;
+let current=0;
+
+Object.keys(holdings).forEach(id=>{
+
+let h=holdings[id];
+
+let coin=coins.find(c=>c.id===id);
+
+if(coin){
+
+invested+=h.quantity*h.average;
+
+current+=h.quantity*coin.price;
+
+}
+
+});
+
+document.getElementById("balance").innerText=money(wallet);
+
+document.getElementById("walletBalance").innerText=money(wallet);
+
+document.getElementById("investment").innerText=money(invested);
+
+document.getElementById("profit").innerText=money(current-invested);
+
+document.getElementById("coinCount").innerText=coins.length;
+
+document.getElementById("watchCount").innerText=favourites.length;
+
+document.getElementById("transactionCount").innerText=history.length;
+
+}
+
+/* MARKET */
+
+function displayCoins(){
+
+let search=document.getElementById("search").value.toLowerCase();
+
+let filtered=coins.filter(c=>
+c.name.toLowerCase().includes(search)||
+c.symbol.toLowerCase().includes(search)
+);
+
+document.getElementById("coinList").innerHTML=filtered.map(c=>`
+
+<tr>
+
+<td>
+<span class="star" onclick="toggleFav('${c.id}')">
+${favourites.includes(c.id)?"★":"☆"}
+</span>
+</td>
+
+<td>
+<div class="coin">
+
+<img src="https://assets.coincap.io/assets/icons/${c.symbol.toLowerCase()}@2x.png"
+onerror="this.style.display='none'">
+
+<div>
+<b>${c.name}</b><br>
+<small>${c.symbol}</small>
+</div>
+
+</div>
+</td>
+
+<td><b>${money(c.price)}</b></td>
+
+<td class="${c.change>=0?'up':'down'}">
+${c.change>=0?'▲':'▼'} ${Math.abs(c.change).toFixed(2)}%
+</td>
+
+<td>${money(c.cap)}</td>
+
+<td>
+<button onclick="selectCoin('${c.id}')">Trade</button>
+</td>
+
+</tr>
+
+`).join("");
+
+updateDashboard();
+updateTradeOptions();
+
+}
+
+/* FAVOURITES */
+
+function toggleFav(id){
+
+favourites=favourites.includes(id)
+?favourites.filter(x=>x!==id)
+:[...favourites,id];
+
+saveData();
+
+displayCoins();
+displayFavourites();
+
+}
+
+function displayFavourites(){
+
+let favCoins=coins.filter(c=>favourites.includes(c.id));
+
+document.getElementById("favourites").innerHTML=
+
+favCoins.length?
+
+favCoins.map(c=>`
+
+<div class="news-card">
+
+<h3>⭐ ${c.name}</h3>
+
+<br>
+
+<h2>${money(c.price)}</h2>
+
+<p class="${c.change>=0?'up':'down'}">
+${c.change}%
+</p>
+
+<br>
+
+<button onclick="toggleFav('${c.id}')">Remove</button>
+
+</div>
+
+`).join(""):"<p>No favourite coins added.</p>";
+
+}
+
+/* SELECT OPTIONS */
+
+function updateTradeOptions(){
+
+["tradeCoin","alertCoin","compare1","compare2"].forEach(id=>{
+
+let select=document.getElementById(id);
+
+let old=select.value;
+
+select.innerHTML=coins.map(c=>`
+
+<option value="${c.id}">
+${c.name} (${c.symbol})
+</option>
+
+`).join("");
+
+if(coins.some(c=>c.id===old)){
+select.value=old;
+}
+
+});
+
+updateTradePrice();
+
+}
+
+function selectCoin(id){
+
+document.getElementById("tradeCoin").value=id;
+
+document.getElementById("trading").scrollIntoView({
+behavior:"smooth"
+});
+
+updateTradePrice();
+
+}
+
+document.getElementById("tradeCoin").addEventListener(
+"change",updateTradePrice
+);
+
+function updateTradePrice(){
+
+let id=document.getElementById("tradeCoin").value;
+
+let c=coins.find(x=>x.id===id);
+
+if(c){
+
+document.getElementById("tradePrice").innerText=
+"Current Price: "+money(c.price);
+
+}
+
+}
+
+/* BUY */
+
+function buyCoin(){
+
+let id=document.getElementById("tradeCoin").value;
+
+let qty=Number(document.getElementById("quantity").value);
+
+let c=coins.find(x=>x.id===id);
+
+if(!c||!Number.isFinite(qty)||qty<=0){
+
+notify("Please enter a valid quantity!");
+
+return;
+
+}
+
+let total=qty*c.price;
+
+if(total>wallet){
+
+notify("Insufficient wallet balance!");
+
+return;
+
+}
+
+let h=holdings[id]||{quantity:0,average:0};
+
+let newQuantity=h.quantity+qty;
+
+h.average=(h.quantity*h.average+total)/newQuantity;
+
+h.quantity=newQuantity;
+
+holdings[id]=h;
+
+wallet-=total;
+
+addHistory(c,"BUY",qty,total);
+
+saveData();
+
+updateDashboard();
+
+notify("Successfully purchased "+c.name+"!");
+
+document.getElementById("quantity").value="";
+
+}
+
+/* SELL */
+
+function sellCoin(){
+
+let id=document.getElementById("tradeCoin").value;
+
+let qty=Number(document.getElementById("quantity").value);
+
+let c=coins.find(x=>x.id===id);
+
+let h=holdings[id];
+
+if(!c||!Number.isFinite(qty)||qty<=0){
+
+notify("Enter a valid quantity!");
+
+return;
+
+}
+
+if(!h||h.quantity<qty){
+
+notify("Insufficient coins to sell!");
+
+return;
+
+}
+
+let total=qty*c.price;
+
+h.quantity-=qty;
+
+if(h.quantity===0){
+
+delete holdings[id];
+
+}else{
+
+holdings[id]=h;
+
+}
+
+wallet+=total;
+
+addHistory(c,"SELL",qty,total);
+
+saveData();
+
+updateDashboard();
+
+notify("Successfully sold "+c.name+"!");
+
+document.getElementById("quantity").value="";
+
+}
+
+/* HISTORY */
+
+function addHistory(c,type,qty,total){
+
+history.unshift({
+
+coin:c.name,
+type:type,
+quantity:qty,
+price:c.price,
+total:total,
+date:new Date().toLocaleString()
+
+});
+
+saveData();
+
+displayHistory();
+
+}
+
+function displayHistory(){
+
+document.getElementById("historyList").innerHTML=
+
+history.map(h=>`
+
+<tr>
+
+<td>${h.coin}</td>
+
+<td class="${h.type==="BUY"?'up':'down'}">${h.type}</td>
+
+<td>${h.quantity}</td>
+
+<td>${money(h.price)}</td>
+
+<td>${money(h.total)}</td>
+
+<td>${h.date}</td>
+
+</tr>
+
+`).join("");
+
+}
+
+/* ADD MONEY */
+
+function addMoney(){
+
+let amount=Number(prompt("Enter amount to add to demo wallet:"));
+
+if(!Number.isFinite(amount)||amount<=0){
+
+notify("Enter a valid amount!");
+
+return;
+
+}
+
+wallet+=amount;
+
+saveData();
+
+updateDashboard();
+
+notify("Money added to demo wallet!");
+
+}
+
+/* ALERTS */
+
+function addAlert(){
+
+let id=document.getElementById("alertCoin").value;
+
+let target=Number(document.getElementById("targetPrice").value);
+
+if(!Number.isFinite(target)||target<=0){
+
+notify("Enter a valid target price!");
+
+return;
+
+}
+
+alerts.push({id:id,target:target});
+
+saveData();
+
+displayAlerts();
+
+document.getElementById("targetPrice").value="";
+
+notify("Price alert created!");
+
+}
+
+function displayAlerts(){
+
+let box=document.getElementById("alertList");
+
+box.innerHTML=alerts.length?alerts.map((a,i)=>{
+
+let c=coins.find(x=>x.id===a.id);
+
+return `
+
+<div class="item">
+
+<span>${c?c.name:a.id} - ${money(a.target)}</span>
+
+<button onclick="removeAlert(${i})">Delete</button>
+
+</div>
+
+`;
+
+}).join(""):"No alerts created.";
+
+}
+
+function removeAlert(i){
+
+alerts.splice(i,1);
+
+saveData();
+
+displayAlerts();
+
+}
+
+function checkAlerts(){
+
+alerts.forEach((a,i)=>{
+
+let c=coins.find(x=>x.id===a.id);
+
+if(!c)return;
+
+if(c.price>=a.target&&!alerted.has(i)){
+
+alerted.add(i);
+
+notify("🔔 "+c.name+" reached your target price!");
+
+}
+
+});
+
+}
+
+/* GAINERS */
+
+function displayMovers(){
+
+let sorted=[...coins].sort((a,b)=>b.change-a.change);
+
+document.getElementById("gainers").innerHTML=
+
+sorted.slice(0,5).map(c=>`
+
+<div class="item">
+
+<b>${c.name}</b>
+
+<span class="up">+${c.change.toFixed(2)}%</span>
+
+</div>
+
+`).join("");
+
+document.getElementById("losers").innerHTML=
+
+sorted.slice(-5).reverse().map(c=>`
+
+<div class="item">
+
+<b>${c.name}</b>
+
+<span class="down">${c.change.toFixed(2)}%</span>
+
+</div>
+
+`).join("");
+
+}
+
+/* CONVERTER */
+
+function convertCurrency(){
+
+let inr=Number(document.getElementById("inrAmount").value);
+
+if(!Number.isFinite(inr)||inr<0){
+
+notify("Enter a valid amount!");
+
+return;
+
+}
+
+let usd=inr/88;
+
+document.getElementById("converted").innerText=
+
+"$"+usd.toLocaleString("en-US",{
+maximumFractionDigits:2
+});
+
+}
+
+/* COMPARE */
+
+function compareCoins(){
+
+let a=coins.find(c=>c.id===document.getElementById("compare1").value);
+
+let b=coins.find(c=>c.id===document.getElementById("compare2").value);
+
+if(!a||!b)return;
+
+document.getElementById("comparison").innerHTML=`
+
+<div class="form-grid">
+
+<div class="card purple">
+
+<h2>${a.name}</h2>
+
+<h3>${money(a.price)}</h3>
+
+<p>24H Change: ${a.change}%</p>
+
+<p>Market Cap: ${money(a.cap)}</p>
+
+</div>
+
+<div class="card blue">
+
+<h2>${b.name}</h2>
+
+<h3>${money(b.price)}</h3>
+
+<p>24H Change: ${b.change}%</p>
+
+<p>Market Cap: ${money(b.cap)}</p>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+/* CSV REPORT */
+
+function downloadCSV(){
+
+if(!history.length){
+
+notify("No transactions to download!");
+
+return;
+
+}
+
+let rows=[
+
+["Coin","Type","Quantity","Price","Total","Date"],
+
+...history.map(h=>[
+h.coin,h.type,h.quantity,h.price,h.total,h.date
+])
+
+];
+
+let csv=rows.map(row=>
+row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")
+).join("\n");
+
+let blob=new Blob(["\uFEFF"+csv],{
+type:"text/csv;charset=utf-8;"
+});
+
+let url=URL.createObjectURL(blob);
+
+let a=document.createElement("a");
+
+a.href=url;
+
+a.download="Cryptocurrency_Report.csv";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+notify("Report downloaded!");
+
+}
+
+/* THEME */
+
+function toggleTheme(){
+
+document.body.classList.toggle("light");
+
+localStorage.setItem(
+"cryptoTheme",
+document.body.classList.contains("light")?"light":"dark"
+);
+
+}
+
+if(localStorage.getItem("cryptoTheme")==="light"){
+
+document.body.classList.add("light");
+
+}
+
+/* SEARCH */
+
+document.getElementById("search").addEventListener(
+"input",displayCoins
+);
+
+/* BACK TO TOP */
+
+function scrollToTop(){
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+/* CHART */
+
+let chart=new Chart(document.getElementById("priceChart"),{
+
+type:"line",
+
+data:{
+
+labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+
+datasets:[{
+
+label:"Bitcoin Price (Demo)",
+
+data:[85000,87000,86000,91000,89000,94000,97000],
+
+borderColor:"#a78bfa",
+
+backgroundColor:"rgba(124,58,237,0.2)",
+
+fill:true,
+
+tension:0.4,
+
+pointRadius:4
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+
+labels:{color:"#aab2d5"}
+
+}
+
+},
+
+scales:{
+
+x:{
+
+ticks:{color:"#aab2d5"},
+
+grid:{color:"rgba(150,150,200,0.08)"}
+
+},
+
+y:{
+
+ticks:{color:"#aab2d5"},
+
+grid:{color:"rgba(150,150,200,0.08)"}
+
+}
+
+}
+
+}
+
+});
+
+/* LIVE CRYPTO API */
+
+async function loadLiveData(){
+
+let status=document.getElementById("status");
+
+status.innerText="🔄 Loading live prices...";
+
+try{
+
+let response=await fetch(
+
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=20&page=1&sparkline=false"
+
+);
+
+if(!response.ok)throw new Error("API unavailable");
+
+let data=await response.json();
+
+if(!data.length)throw new Error("No data");
+
+coins=data.map(c=>({
+
+id:c.id,
+
+name:c.name,
+
+symbol:c.symbol.toUpperCase(),
+
+price:c.current_price||0,
+
+change:c.price_change_percentage_24h||0,
+
+cap:c.market_cap||0
+
+}));
+
+status.innerText="🟢 Live prices updated successfully!";
+
+}catch(e){
+
+status.innerText="⚠️ Live API unavailable. Showing demo data.";
+
+}
+
+displayCoins();
+
+displayFavourites();
+
+displayHistory();
+
+displayAlerts();
+
+displayMovers();
+
+updateTradePrice();
+
+updateDashboard();
+
+checkAlerts();
+
+}
+
+/* INITIALIZE */
+
+displayCoins();
+
+displayFavourites();
+
+displayHistory();
+
+displayAlerts();
+
+displayMovers();
+
+updateDashboard();
+
+loadLiveData();
+
+/* AUTO REFRESH */
+
+setInterval(loadLiveData,60000);
+
+</script>
+
+</body>
+</html> Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0b1020;
+    color:white;
+    transition:.3s;
+}
+
+body.light{
+    background:#f1f3ff;
+    color:#151a35;
+}
+
+.sidebar{
+    position:fixed;
+    width:245px;
+    height:100vh;
+    background:linear-gradient(180deg,#26145b,#11172f);
+    padding:25px 18px;
+    overflow-y:auto;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:bold;
+    color:#a78bfa;
+    margin-bottom:35px;
+}
+
+.logo span{color:#22d3ee;}
+
+.menu a{
+    display:block;
+    padding:14px;
+    margin:8px 0;
+    text-decoration:none;
+    color:#c4c9e9;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu a:hover,
+.menu a.active{
+    background:linear-gradient(90deg,#9333ea,#2563eb);
+    color:white;
+}
+
+.main{
+    margin-left:245px;
+    padding:28px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.topbar h1{font-size:27px;}
+
+.search{
+    padding:12px;
+    border:1px solid #41476e;
+    background:#202849;
+    color:white;
+    border-radius:10px;
+    outline:none;
+}
+
+.light .search{
+    background:white;
+    color:#111;
+}
+
+button{
+    border:none;
+    background:linear-gradient(90deg,#9333ea,#2563eb);
+    color:white;
+    padding:11px 16px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:bold;
+    margin:3px;
+}
+
+button:hover{opacity:.8;}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:22px;
+}
+
+.card{
+    background:linear-gradient(135deg,#282e5a,#171d39);
+    padding:22px;
+    border-radius:16px;
+    border:1px solid #39416d;
+}
+
+.light .card,
+.light .section{
+    background:white;
+    border:1px solid #ddd;
+}
+
+.card p{
+    color:#aab2d5;
+    font-size:14px;
+}
+
+.card h2{
+    margin:15px 0;
+    font-size:24px;
+}
+
+.purple{border-left:5px solid #a78bfa;}
+.blue{border-left:5px solid #38bdf8;}
+.green{border-left:5px solid #34d399;}
+.orange{border-left:5px solid #fb923c;}
+
+.up{color:#34d399;}
+.down{color:#fb7185;}
+
+.section{
+    background:#171d39;
+    border:1px solid #39416d;
+    padding:22px;
+    border-radius:16px;
+    margin-bottom:22px;
+}
+
+.section h3{
+    margin-bottom:18px;
+}
+
+.middle{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:18px;
+}
+
+.chartbox{
+    height:270px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+th,td{
+    padding:15px 10px;
+    text-align:left;
+    border-bottom:1px solid #39416d;
+}
+
+th{
+    color:#aab2d5;
+    font-size:13px;
+}
+
+.light th,.light td{
+    border-color:#ddd;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+.coin{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.coin img{
+    width:32px;
+    height:32px;
+}
+
+.coin small{
+    color:#aab2d5;
+}
+
+.star{
+    color:#fbbf24;
+    cursor:pointer;
+    font-size:21px;
+}
+
+.input{
+    width:100%;
+    padding:12px;
+    border:1px solid #454d78;
+    background:#222949;
+    color:white;
+    border-radius:9px;
+    margin:8px 0 15px;
+}
+
+.light .input{
+    background:white;
+    color:#111;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.news-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.news-card{
+    background:#252c53;
+    padding:18px;
+    border-radius:13px;
+    line-height:1.6;
+}
+
+.light .news-card{
+    background:#eef0ff;
+}
+
+.news-card h4{
+    margin-bottom:10px;
+}
+
+.progress{
+    height:9px;
+    background:#30385d;
+    border-radius:20px;
+    margin:10px 0 18px;
+}
+
+.progress div{
+    height:100%;
+    background:linear-gradient(90deg,#9333ea,#22d3ee);
+    border-radius:20px;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    margin:15px 0;
+    gap:10px;
+}
+
+.badge{
+    background:#30385d;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+footer{
+    text-align:center;
+    padding:25px;
+    color:#aab2d5;
+}
+
+#message{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#16a34a;
+    color:white;
+    padding:15px 22px;
+    border-radius:10px;
+    display:none;
+    z-index:10;
+}
+
+@media(max-width:1000px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .middle{grid-template-columns:1fr;}
+    .news-grid{grid-template-columns:1fr 1fr;}
+}
+
+@media(max-width:700px){
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+    .menu{
+        display:flex;
+        overflow-x:auto;
+    }
+    .menu a{white-space:nowrap;}
+    .main{
+        margin:0;
+        padding:15px;
+    }
+    .form-grid{grid-template-columns:1fr;}
+}
+
+@media(max-width:450px){
+    .stats{grid-template-columns:1fr;}
+    .news-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">🚀 Crypto<span>Verse</span></div>
+
+    <div class="menu">
+        <a href="#dashboard" class="active">🏠 Dashboard</a>
+        <a href="#markets">📊 Markets</a>
+        <a href="#trading">💹 Buy / Sell</a>
+        <a href="#wallet">💰 Wallet</a>
+        <a href="#watchlist">⭐ Watchlist</a>
+        <a href="#analytics">📈 Analytics</a>
+        <a href="#alerts">🔔 Price Alerts</a>
+        <a href="#history">📜 History</a>
+        <a href="#converter">🌎 Converter</a>
+        <a href="#news">📰 Crypto News</a>
+    </div>
+
+</div>
+
+<div class="main" id="dashboard">
+
+    <div class="topbar">
+
+        <div>
+            <h1>CryptoVerse Dashboard 👋</h1>
+            <p style="color:#aab2d5;margin-top:7px">
+                Advanced Cryptocurrency Management System
+            </p>
+        </div>
+
+        <div>
+            <input type="text" id="search" class="search"
+            placeholder="🔍 Search coins...">
+
+            <button onclick="toggleTheme()">🌙 Theme</button>
+
+            <button onclick="loadLiveData()">🔄 Refresh</button>
+        </div>
+
+    </div>
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+        <div class="card purple">
+            <p>💰 Wallet Balance</p>
+            <h2 id="balance">₹1,00,000</h2>
+            <span class="up">Virtual Wallet</span>
+        </div>
+
+        <div class="card blue">
+            <p>📈 Total Profit / Loss</p>
+            <h2 id="profit">₹0</h2>
+            <span>Demo Trading</span>
+        </div>
+
+        <div class="card green">
+            <p>🪙 Cryptocurrencies</p>
+            <h2 id="coinCount">20</h2>
+            <span>Available coins</span>
+        </div>
+
+        <div class="card orange">
+            <p>⭐ Watchlist</p>
+            <h2 id="watchCount">0</h2>
+            <span>Favourite coins</span>
+        </div>
+
+    </div>
+
+    <!-- CHART -->
+
+    <div class="middle">
+
+        <div class="section" id="analytics">
+
+            <h3>📈 Market Analytics</h3>
+
+            <div class="chartbox">
+                <canvas id="priceChart"></canvas>
+            </div>
+
+        </div>
+
+        <div class="section" id="wallet">
+
+            <h3>💎 My Wallet</h3>
+
+            <div class="item">
+                <span>Available Balance</span>
+                <b id="walletBalance">₹1,00,000</b>
+            </div>
+
+            <div class="item">
+                <span>Total Investments</span>
+                <b id="investment">₹0</b>
+            </div>
+
+            <div class="item">
+                <span>Transactions</span>
+                <b id="transactionCount">0</b>
+            </div>
+
+            <br>
+
+            <button onclick="addMoney()">➕ Add Money</button>
+
+        </div>
+
+    </div>
+
+    <!-- TOP GAINERS -->
+
+    <div class="middle">
+
+        <div class="section">
+
+            <h3>🏆 Top Gainers</h3>
+
+            <div id="gainers"></div>
+
+        </div>
+
+        <div class="section">
+
+            <h3>📉 Top Losers</h3>
+
+            <div id="losers"></div>
+
+        </div>
+
+    </div>
+
+    <!-- MARKET -->
+
+    <div class="section table-wrap" id="markets">
+
+        <h3>🔥 Cryptocurrency Market</h3>
+
+        <br>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>⭐</th>
+                    <th>Coin</th>
+                    <th>Price</th>
+                    <th>24H Change</th>
+                    <th>Market Cap</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="coinList"></tbody>
+
+        </table>
+
+        <p id="status" style="padding:15px;color:#aab2d5">
+            Loading...
+        </p>
+
+    </div>
+
+    <!-- TRADING -->
+
+    <div class="section" id="trading">
+
+        <h3>💹 Buy & Sell Cryptocurrency</h3>
+
+        <div class="form-grid">
+
+            <div>
+
+                <label>Select Cryptocurrency</label>
+
+                <select class="input" id="tradeCoin"></select>
+
+                <label>Quantity</label>
+
+                <input type="number" class="input"
+                id="quantity" placeholder="Enter quantity" min="0" step="any">
+
+                <button onclick="buyCoin()">🟢 Buy Coin</button>
+
+                <button onclick="sellCoin()">🔴 Sell Coin</button>
+
+            </div>
+
+            <div>
+
+                <h3>Trading Information</h3>
+
+                <p id="tradePrice">Select a coin to see its price.</p>
+
+                <br>
+
+                <p style="color:#aab2d5;line-height:1.8">
+                    This is a virtual trading system.
+                    It does not execute real cryptocurrency transactions.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- WATCHLIST -->
+
+    <div class="section" id="watchlist">
+
+        <h3>⭐ My Favourite Coins</h3>
+
+        <br>
+
+        <div id="favourites" class="news-grid">
+            <p>No favourites added.</p>
+        </div>
+
+    </div>
+
+    <!-- ALERTS -->
+
+    <div class="section" id="alerts">
+
+        <h3>🔔 Price Alert System</h3>
+
+        <div class="form-grid">
+
+            <div>
+
+                <label>Select Coin</label>
+
+                <select class="input" id="alertCoin"></select>
+
+                <label>Target Price (INR)</label>
+
+                <input type="number" class="input"
+                id="targetPrice" placeholder="Enter target price">
+
+                <button onclick="addAlert()">Create Alert</button>
+
+            </div>
+
+            <div>
+
+                <h3>My Price Alerts</h3>
+
+                <div id="alertList">
+                    No alerts created.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HISTORY -->
+
+    <div class="section table-wrap" id="history">
+
+        <h3>📜 Transaction History</h3>
+
+        <br>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="historyList"></tbody>
+
+        </table>
+
+        <br>
+
+        <button onclick="downloadCSV()">📥 Download Report</button>
+
+    </div>
+
+    <!-- CONVERTER -->
+
+    <div class="section" id="converter">
+
+        <h3>🌎 Currency Converter</h3>
+
+        <div class="form-grid">
+
+            <div>
+
+                <label>Enter INR Amount</label>
+
+                <input type="number" id="inrAmount"
+                class="input" placeholder="Enter amount">
+
+                <button onclick="convertCurrency()">Convert</button>
+
+            </div>
+
+            <div>
+
+                <h3>Converted Amount</h3>
+
+                <h2 id="converted">$0.00</h2>
+
+                <p style="color:#aab2d5">
+                    Uses a demo USD/INR exchange rate.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- COMPARISON -->
+
+    <div class="section">
+
+        <h3>⚖️ Compare Cryptocurrencies</h3>
+
+        <div class="form-grid">
+
+            <div>
+                <select id="compare1" class="input"></select>
+            </div>
+
+            <div>
+                <select id="compare2" class="input"></select>
+            </div>
+
+        </div>
+
+        <button onclick="compareCoins()">Compare Now</button>
+
+        <div id="comparison" style="margin-top:20px"></div>
+
+    </div>
+
+    <!-- NEWS -->
+
+    <div class="section" id="news">
+
+        <h3>📰 Crypto News</h3>
+
+        <div class="news-grid">
+
+            <div class="news-card">
+                <h4>₿ Bitcoin Market</h4>
+                <p>Follow Bitcoin market movements and price trends.</p>
+                <span class="badge">Market Update</span>
+            </div>
+
+            <div class="news-card">
+                <h4>Ξ Ethereum Ecosystem</h4>
+                <p>Explore developments in blockchain applications.</p>
+                <span class="badge">Technology</span>
+            </div>
+
+            <div class="news-card">
+                <h4>🚀 Crypto Trends</h4>
+                <p>Discover popular cryptocurrency market trends.</p>
+                <span class="badge">Trending</span>
+            </div>
+
+        </div>
+
+        <br>
+
+        <p style="color:#aab2d5">
+            These are sample news cards, not live news headlines.
+        </p>
+
+    </div>
+
+    <footer>
+        🚀 CryptoVerse Advanced Dashboard 2.0
+        <br><br>
+        Developed with HTML, CSS and JavaScript
+        <br><br>
+        Educational Demo | Not Financial Advice
+    </footer>
+
+</div>
+
+<div id="message"></div>
+
+<script>
+
+// SAMPLE CRYPTO DATA
+
+const sampleCoins = [
+
+{id:"bitcoin",name:"Bitcoin",symbol:"BTC",price:9200000,change:2.5,cap:1800000000000},
+
+{id:"ethereum",name:"Ethereum",symbol:"ETH",price:310000,change:3.2,cap:370000000000},
+
+{id:"tether",name:"Tether",symbol:"USDT",price:88,change:0.1,cap:150000000000},
+
+{id:"binancecoin",name:"BNB",symbol:"BNB",price:82000,change:1.8,cap:120000000000},
+
+{id:"solana",name:"Solana",symbol:"SOL",price:15000,change:5.6,cap:70000000000},
+
+{id:"ripple",name:"XRP",symbol:"XRP",price:210,change:-1.5,cap:110000000000},
+
+{id:"dogecoin",name:"Dogecoin",symbol:"DOGE",price:18,change:4.5,cap:25000000000},
+
+{id:"cardano",name:"Cardano",symbol:"ADA",price:55,change:-2.2,cap:19000000000},
+
+{id:"tron",name:"TRON",symbol:"TRX",price:30,change:1.3,cap:28000000000},
+
+{id:"avalanche-2",name:"Avalanche",symbol:"AVAX",price:2300,change:3.8,cap:9000000000},
+
+{id:"polkadot",name:"Polkadot",symbol:"DOT",price:350,change:-0.8,cap:6000000000},
+
+{id:"chainlink",name:"Chainlink",symbol:"LINK",price:1400,change:2.7,cap:10000000000},
+
+{id:"shiba-inu",name:"Shiba Inu",symbol:"SHIB",price:0.002,change:6.1,cap:8000000000},
+
+{id:"litecoin",name:"Litecoin",symbol:"LTC",price:8000,change:1.1,cap:7000000000},
+
+{id:"uniswap",name:"Uniswap",symbol:"UNI",price:700,change:-1.3,cap:4000000000},
+
+{id:"stellar",name:"Stellar",symbol:"XLM",price:30,change:2.3,cap:5000000000},
+
+{id:"monero",name:"Monero",symbol:"XMR",price:25000,change:1.7,cap:4000000000},
+
+{id:"cosmos",name:"Cosmos",symbol:"ATOM",price:400,change:-0.5,cap:2000000000},
+
+{id:"near",name:"NEAR Protocol",symbol:"NEAR",price:450,change:3.4,cap:5000000000},
+
+{id:"aptos",name:"Aptos",symbol:"APT",price:600,change:-1.2,cap:3000000000}
+
+];
+
+let coins=[...sampleCoins];
+
+let wallet=Number(localStorage.getItem("cryptoWallet")||100000);
+
+let holdings=JSON.parse(localStorage.getItem("cryptoHoldings")||"{}");
+
+let history=JSON.parse(localStorage.getItem("cryptoHistory")||"[]");
+
+let favourites=JSON.parse(localStorage.getItem("cryptoFav")||"[]");
+
+let alerts=JSON.parse(localStorage.getItem("cryptoAlerts")||"[]");
+
+let alerted=[];
+
+function money(n){
+
+    return "₹"+Number(n).toLocaleString("en-IN",{
+        maximumFractionDigits:2
+    });
+
+}
+
+function saveData(){
+
+    localStorage.setItem("cryptoWallet",wallet);
+
+    localStorage.setItem("cryptoHoldings",JSON.stringify(holdings));
+
+    localStorage.setItem("cryptoHistory",JSON.stringify(history));
+
+    localStorage.setItem("cryptoFav",JSON.stringify(favourites));
+
+    localStorage.setItem("cryptoAlerts",JSON.stringify(alerts));
+
+}
+
+function notify(text){
+
+    let m=document.getElementById("message");
+
+    m.innerText=text;
+
+    m.style.display="block";
+
+    setTimeout(()=>m.style.display="none",3000);
+
+}
+
+// UPDATE DASHBOARD
+
+function updateDashboard(){
+
+    let invested=0;
+
+    let current=0;
+
+    Object.keys(holdings).forEach(id=>{
+
+        let h=holdings[id];
+
+        let coin=coins.find(c=>c.id===id);
+
+        if(coin){
+
+            invested+=h.quantity*h.average;
+
+            current+=h.quantity*coin.price;
+
+        }
+
+    });
+
+    document.getElementById("balance").innerText=money(wallet);
+
+    document.getElementById("walletBalance").innerText=money(wallet);
+
+    document.getElementById("investment").innerText=money(invested);
+
+    document.getElementById("profit").innerText=money(current-invested);
+
+    document.getElementById("coinCount").innerText=coins.length;
+
+    document.getElementById("watchCount").innerText=favourites.length;
+
+    document.getElementById("transactionCount").innerText=history.length;
+
+}
+
+// MARKET TABLE
+
+function displayCoins(){
+
+    let search=document.getElementById("search").value.toLowerCase();
+
+    let filtered=coins.filter(c=>
+        c.name.toLowerCase().includes(search)||
+        c.symbol.toLowerCase().includes(search)
+    );
+
+    document.getElementById("coinList").innerHTML=filtered.map(c=>`
+
+        <tr>
+
+            <td>
+                <span class="star" onclick="toggleFav('${c.id}')">
+                    ${favourites.includes(c.id)?"★":"☆"}
+                </span>
+            </td>
+
+            <td>
+                <div class="coin">
+                    <img src="https://assets.coincap.io/assets/icons/${c.symbol.toLowerCase()}@2x.png"
+                    onerror="this.style.display='none'">
+                    <div>
+                        <b>${c.name}</b><br>
+                        <small>${c.symbol}</small>
+                    </div>
+                </div>
+            </td>
+
+            <td><b>${money(c.price)}</b></td>
+
+            <td class="${c.change>=0?'up':'down'}">
+                ${c.change>=0?'▲':'▼'} ${Math.abs(c.change).toFixed(2)}%
+            </td>
+
+            <td>${money(c.cap)}</td>
+
+            <td>
+                <button onclick="selectCoin('${c.id}')">Trade</button>
+            </td>
+
+        </tr>
+
+    `).join("");
+
+    updateDashboard();
+
+    updateTradeOptions();
+
+}
+
+// FAVOURITES
+
+function toggleFav(id){
+
+    favourites=favourites.includes(id)
+        ?favourites.filter(x=>x!==id)
+        :[...favourites,id];
+
+    saveData();
+
+    displayCoins();
+
+    displayFavourites();
+
+}
+
+function displayFavourites(){
+
+    let favCoins=coins.filter(c=>favourites.includes(c.id));
+
+    document.getElementById("favourites").innerHTML=
+
+    favCoins.length?
+
+    favCoins.map(c=>`
+
+        <div class="news-card">
+
+            <h3>⭐ ${c.name}</h3>
+
+            <br>
+
+            <h2>${money(c.price)}</h2>
+
+            <p class="${c.change>=0?'up':'down'}">
+                ${c.change}%
+            </p>
+
+            <br>
+
+            <button onclick="toggleFav('${c.id}')">Remove</button>
+
+        </div>
+
+    `).join(""):"<p>No favourite coins added.</p>";
+
+}
+
+// TRADING OPTIONS
+
+function updateTradeOptions(){
+
+    ["tradeCoin","alertCoin","compare1","compare2"].forEach(id=>{
+
+        let select=document.getElementById(id);
+
+        let old=select.value;
+
+        select.innerHTML=coins.map(c=>`
+
+            <option value="${c.id}">${c.name} (${c.symbol})</option>
+
+        `).join("");
+
+        if(coins.some(c=>c.id===old))select.value=old;
+
+    });
+
+    updateTradePrice();
+
+}
+
+function selectCoin(id){
+
+    document.getElementById("tradeCoin").value=id;
+
+    document.getElementById("trading").scrollIntoView();
+
+    updateTradePrice();
+
+}
+
+document.getElementById("tradeCoin").addEventListener(
+    "change",updateTradePrice
+);
+
+function updateTradePrice(){
+
+    let id=document.getElementById("tradeCoin").value;
+
+    let c=coins.find(x=>x.id===id);
+
+    if(c){
+
+        document.getElementById("tradePrice").innerText=
+        "Current Price: "+money(c.price);
+
+    }
+
+}
+
+// BUY COINS
+
+function buyCoin(){
+
+    let id=document.getElementById("tradeCoin").value;
+
+    let qty=Number(document.getElementById("quantity").value);
+
+    let c=coins.find(x=>x.id===id);
+
+    if(!c||!Number.isFinite(qty)||qty<=0){
+
+        notify("Please enter a valid quantity!");
+
+        return;
+
+    }
+
+    let total=qty*c.price;
+
+    if(total>wallet){
+
+        notify("Insufficient wallet balance!");
+
+        return;
+
+    }
+
+    let h=holdings[id]||{quantity:0,average:0};
+
+    let newQuantity=h.quantity+qty;
+
+    h.average=(h.quantity*h.average+total)/newQuantity;
+
+    h.quantity=newQuantity;
+
+    holdings[id]=h;
+
+    wallet-=total;
+
+    addHistory(c,"BUY",qty,total);
+
+    saveData();
+
+    updateDashboard();
+
+    notify("Successfully purchased "+c.name+"!");
+
+    document.getElementById("quantity").value="";
+
+}
+
+// SELL COINS
+
+function sellCoin(){
+
+    let id=document.getElementById("tradeCoin").value;
+
+    let qty=Number(document.getElementById("quantity").value);
+
+    let c=coins.find(x=>x.id===id);
+
+    let h=holdings[id];
+
+    if(!c||!Number.isFinite(qty)||qty<=0){
+
+        notify("Enter a valid quantity!");
+
+        return;
+
+    }
+
+    if(!h||h.quantity<qty){
+
+        notify("Insufficient coins to sell!");
+
+        return;
+
+    }
+
+    let total=qty*c.price;
+
+    h.quantity-=qty;
+
+    if(h.quantity===0){
+
+        delete holdings[id];
+
+    }else{
+
+        holdings[id]=h;
+
+    }
+
+    wallet+=total;
+
+    addHistory(c,"SELL",qty,total);
+
+    saveData();
+
+    updateDashboard();
+
+    notify("Successfully sold "+c.name+"!");
+
+    document.getElementById("quantity").value="";
+
+}
+
+// HISTORY
+
+function addHistory(c,type,qty,total){
+
+    history.unshift({
+
+        coin:c.name,
+
+        type:type,
+
+        quantity:qty,
+
+        price:c.price,
+
+        total:total,
+
+        date:new Date().toLocaleString()
+
+    });
+
+    saveData();
+
+    displayHistory();
+
+}
+
+function displayHistory(){
+
+    document.getElementById("historyList").innerHTML=
+
+    history.map(h=>`
+
+        <tr>
+
+            <td>${h.coin}</td>
+
+            <td class="${h.type==="BUY"?'up':'down'}">${h.type}</td>
+
+            <td>${h.quantity}</td>
+
+            <td>${money(h.price)}</td>
+
+            <td>${money(h.total)}</td>
+
+            <td>${h.date}</td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+// ADD WALLET MONEY
+
+function addMoney(){
+
+    let amount=Number(prompt("Enter amount to add to demo wallet:"));
+
+    if(!Number.isFinite(amount)||amount<=0){
+
+        notify("Enter a valid amount!");
+
+        return;
+
+    }
+
+    wallet+=amount;
+
+    saveData();
+
+    updateDashboard();
+
+    notify("Money added to demo wallet!");
+
+}
+
+// ALERT SYSTEM
+
+function addAlert(){
+
+    let id=document.getElementById("alertCoin").value;
+
+    let target=Number(document.getElementById("targetPrice").value);
+
+    if(!Number.isFinite(target)||target<=0){
+
+        notify("Enter a valid target price!");
+
+        return;
+
+    }
+
+    alerts.push({
+
+        id:id,
+
+        target:target
+
+    });
+
+    saveData();
+
+    displayAlerts();
+
+    document.getElementById("targetPrice").value="";
+
+    notify("Price alert created!");
+
+}
+
+function displayAlerts(){
+
+    let box=document.getElementById("alertList");
+
+    box.innerHTML=alerts.length?alerts.map((a,i)=>{
+
+        let c=coins.find(x=>x.id===a.id);
+
+        return `
+
+            <div class="item">
+
+                <span>${c?c.name:a.id} - ${money(a.target)}</span>
+
+                <button onclick="removeAlert(${i})">Delete</button>
+
+            </div>
+
+        `;
+
+    }).join(""):"No alerts created.";
+
+}
+
+function removeAlert(i){
+
+    alerts.splice(i,1);
+
+    saveData();
+
+    displayAlerts();
+
+}
+
+function checkAlerts(){
+
+    alerts.forEach((a,i)=>{
+
+        let c=coins.find(x=>x.id===a.id);
+
+        if(!c)return;
+
+        if(c.price>=a.target&&!alerted.includes(i)){
+
+            alerted.push(i);
+
+            notify("🔔 "+c.name+" reached your target price!");
+
+        }
+
+    });
+
+}
+
+// TOP GAINERS AND LOSERS
+
+function displayMovers(){
+
+    let sorted=[...coins].sort((a,b)=>b.change-a.change);
+
+    document.getElementById("gainers").innerHTML=
+
+    sorted.slice(0,5).map(c=>`
+
+        <div class="item">
+
+            <b>${c.name}</b>
+
+            <span class="up">+${c.change.toFixed(2)}%</span>
+
+        </div>
+
+    `).join("");
+
+    document.getElementById("losers").innerHTML=
+
+    sorted.slice(-5).reverse().map(c=>`
+
+        <div class="item">
+
+            <b>${c.name}</b>
+
+            <span class="down">${c.change.toFixed(2)}%</span>
+
+        </div>
+
+    `).join("");
+
+}
+
+// CURRENCY CONVERTER
+
+function convertCurrency(){
+
+    let inr=Number(document.getElementById("inrAmount").value);
+
+    if(!Number.isFinite(inr)||inr<0){
+
+        notify("Enter a valid amount!");
+
+        return;
+
+    }
+
+    let usd=inr/88;
+
+    document.getElementById("converted").innerText=
+
+    "$"+usd.toLocaleString("en-US",{
+        maximumFractionDigits:2
+    });
+
+}
+
+// COIN COMPARISON
+
+function compareCoins(){
+
+    let a=coins.find(c=>c.id===document.getElementById("compare1").value);
+
+    let b=coins.find(c=>c.id===document.getElementById("compare2").value);
+
+    if(!a||!b)return;
+
+    document.getElementById("comparison").innerHTML=`
+
+        <div class="form-grid">
+
+            <div class="card purple">
+
+                <h2>${a.name}</h2>
+
+                <h3>${money(a.price)}</h3>
+
+                <p>24H Change: ${a.change}%</p>
+
+                <p>Market Cap: ${money(a.cap)}</p>
+
+            </div>
+
+            <div class="card blue">
+
+                <h2>${b.name}</h2>
+
+                <h3>${money(b.price)}</h3>
+
+                <p>24H Change: ${b.change}%</p>
+
+                <p>Market Cap: ${money(b.cap)}</p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+// CSV REPORT
+
+function downloadCSV(){
+
+    if(!history.length){
+
+        notify("No transactions to download!");
+
+        return;
+
+    }
+
+    let rows=[
+
+        ["Coin","Type","Quantity","Price","Total","Date"],
+
+        ...history.map(h=>[
+            h.coin,h.type,h.quantity,h.price,h.total,h.date
+        ])
+
+    ];
+
+    let csv=rows.map(row=>
+        row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")
+    ).join("\n");
+
+    let blob=new Blob(["\uFEFF"+csv],{
+        type:"text/csv;charset=utf-8;"
+    });
+
+    let url=URL.createObjectURL(blob);
+
+    let a=document.createElement("a");
+
+    a.href=url;
+
+    a.download="CryptoVerse_Report.csv";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    notify("Report downloaded!");
+
+}
+
+// DARK AND LIGHT MODE
+
+function toggleTheme(){
+
+    document.body.classList.toggle("light");
+
+    localStorage.setItem(
+        "cryptoTheme",
+        document.body.classList.contains("light")?"light":"dark"
+    );
+
+}
+
+if(localStorage.getItem("cryptoTheme")==="light"){
+
+    document.body.classList.add("light");
+
+}
+
+// SEARCH
+
+document.getElementById("search").addEventListener(
+    "input",displayCoins
+);
+
+// CHART
+
+let chart=new Chart(document.getElementById("priceChart"),{
+
+    type:"line",
+
+    data:{
+
+        labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+
+        datasets:[{
+
+            label:"Bitcoin Price (Demo)",
+
+            data:[85000,87000,86000,91000,89000,94000,97000],
+
+            borderColor:"#a78bfa",
+
+            backgroundColor:"rgba(124,58,237,0.2)",
+
+            fill:true,
+
+            tension:0.4,
+
+            pointRadius:4
+
+        }]
+
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        plugins:{
+
+            legend:{
+
+                labels:{color:"#aab2d5"}
+
+            }
+
+        },
+
+        scales:{
+
+            x:{
+
+                ticks:{color:"#aab2d5"},
+
+                grid:{color:"rgba(150,150,200,0.08)"}
+
+            },
+
+            y:{
+
+                ticks:{color:"#aab2d5"},
+
+                grid:{color:"rgba(150,150,200,0.08)"}
+
+            }
+
+        }
+
+    }
+
+});
+
+// LIVE CRYPTO API
+
+async function loadLiveData(){
+
+    let status=document.getElementById("status");
+
+    status.innerText="🔄 Loading live prices...";
+
+    try{
+
+        let response=await fetch(
+
+        "https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=20&page=1&sparkline=false"
+
+        );
+
+        if(!response.ok)throw new Error("API unavailable");
+
+        let data=await response.json();
+
+        if(!data.length)throw new Error("No data");
+
+        coins=data.map(c=>({
+
+            id:c.id,
+
+            name:c.name,
+
+            symbol:c.symbol.toUpperCase(),
+
+            price:c.current_price||0,
+
+            change:c.price_change_percentage_24h||0,
+
+            cap:c.market_cap||0
+
+        }));
+
+        status.innerText="🟢 Live prices updated successfully!";
+
+    }catch(e){
+
+        status.innerText="⚠️ Live API unavailable. Showing demo data.";
+
+    }
+
+    displayCoins();
+
+    displayFavourites();
+
+    displayHistory();
+
+    displayAlerts();
+
+    displayMovers();
+
+    updateTradePrice();
+
+    updateDashboard();
+
+    checkAlerts();
+
+}
+
+// INITIALIZE
+
+displayCoins();
+
+displayFavourites();
+
+displayHistory();
+
+displayAlerts();
+
+displayMovers();
+
+updateDashboard();
+
+loadLiveData();
+
+// AUTOMATIC REFRESH
+
+setInterval(loadLiveData,60000);
+
+</script>
+
+</body>
+</html>
